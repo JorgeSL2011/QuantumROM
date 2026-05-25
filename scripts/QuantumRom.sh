@@ -205,11 +205,8 @@ DOWNLOAD_FIRMWARE() {
     fi
 
     # --- Show Firmware Info ---
-    local file_size=$(du -m "${DOWN_DIR}/${MODEL}_*_fac.zip" | cut -f1)
-    echo -e "Firmware Size: ${file_size} MB"
-
-    # --- Cleanup ---
-    rm -f "$enc_file"
+    local file_size=$(du -m ${DOWN_DIR}/${MODEL}_*_fac.zip 2>/dev/null | cut -f1)
+    echo "Firmware Size: ${file_size:-0} MB"
 }
 
 
