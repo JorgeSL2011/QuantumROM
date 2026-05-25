@@ -325,7 +325,6 @@ EXTRACT_FIRMWARE() {
         -delete
 
     echo -e "Firmware Extraction complete."
-	ls "$FIRM_DIR"
 }
 
 
@@ -350,10 +349,7 @@ EXTRACT_SUPER_IMG() {
 
         "$lpunpack" "$FIRM_DIR/super.img" "$FIRM_DIR" || return 1
         rm -f "$FIRM_DIR/super.img"
-
         echo -e "super.img extraction complete"
-		ls "$FIRM_DIR"
-
     else
         echo -e "${RED}No super.img found.${NC}"
     fi
@@ -384,6 +380,7 @@ PREPARE_PARTITIONS() {
     done
 
     echo -e "${YELLOW}Preparing partitinos.${NC} $STOCK_DEVICE"
+	ls "$EXTRACTED_FIRM_DIR"
 
     find "$EXTRACTED_FIRM_DIR" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 
