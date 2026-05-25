@@ -325,6 +325,7 @@ EXTRACT_FIRMWARE() {
         -delete
 
     echo -e "Firmware Extraction complete."
+	ls "$FIRM_DIR"
 }
 
 
@@ -351,6 +352,7 @@ EXTRACT_SUPER_IMG() {
         rm -f "$FIRM_DIR/super.img"
 
         echo -e "super.img extraction complete"
+		ls "$FIRM_DIR"
 
     else
         echo -e "${RED}No super.img found.${NC}"
