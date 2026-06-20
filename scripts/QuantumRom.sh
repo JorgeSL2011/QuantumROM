@@ -1631,49 +1631,143 @@ GEN_FILE_CONTEXTS() {
 
 
 BUILD_IMG() {
-    if [ "$#" -ne 3 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> <FILE_SYSTEM> <OUT_DIR>"
+    echo " "
+
+    if [ "$#" -ne 4 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> all|img_name <FILE_SYSTEM> <OUT_DIR>"
         return 1
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
-    local FILE_SYSTEM="$2"
-	local OUT_DIR="$3"
+    local MODE="$2"
+    local FILE_SYSTEM="$3"
+    local OUT_DIR="$4"
 
-    GEN_FS_CONFIG "$EXTRACTED_FIRM_DIR"
-	GEN_FILE_CONTEXTS "$EXTRACTED_FIRM_DIR"
+    mkdir -p "$OUT_DIR"
 
-    for PART in "$EXTRACTED_FIRM_DIR"/*; do
-        [[ -d "$PART" ]] || continue    
-        PARTITION="$(basename "$PART")"
-        [[ "$PARTITION" == "config" ]] && continue 
+    build_img() {
+        local PARTITION="$1"
 
-        local SRC_DIR="$EXTRACTED_FIRM_DIR/$PARTITION"
+        mkdir -p "${EXTRACTED_FIRM_DIR}/${PARTITION}/lost+found"
+
+        GEN_FS_CONFIG "$EXTRACTED_FIRM_DIR" "$PARTITION"
+        GEN_FILE_CONTEXTS "$EXTRACTED_FIRM_DIR" "$PARTITION"
+
+        local SOURCE_DIR="${EXTRACTED_FIRM_DIR}/$PARTITION"
         local OUT_IMG="$OUT_DIR/${PARTITION}.img"
-        local FS_CONFIG="$EXTRACTED_FIRM_DIR/config/${PARTITION}_fs_config"
-        local FILE_CONTEXTS="$EXTRACTED_FIRM_DIR/config/${PARTITION}_file_contexts"
-        local SIZE=$(du -sb --apparent-size "$SRC_DIR" | awk '{printf "%.0f", $1 * 1.2}')
-		MOUNT_POINT="/$PARTITION"
+        local FS_CONFIG="${EXTRACTED_FIRM_DIR}/config/${PARTITION}_fs_config"
+        local FILE_CONTEXTS="${EXTRACTED_FIRM_DIR}/config/${PARTITION}_file_contexts"
 
-        echo -e ""
-        [[ -f "$FS_CONFIG" ]] || { echo -e "Warning: $FS_CONFIG missing, skipping $PARTITION"; continue; }
-        [[ -f "$FILE_CONTEXTS" ]] || { echo -e "Warning: $FILE_CONTEXTS missing, skipping $PARTITION"; continue; }
+        [[ -d "$SOURCE_DIR" ]] || return
+
+        local EXTRACTED_SIZE=$(du -sb --apparent-size "$SOURCE_DIR" | cut -f1)
+        local MOUNT_POINT="/$PARTITION"
+
+        rm -rf "$OUT_IMG"
+
+        [[ -f "$FS_CONFIG" ]] || {
+            echo -e "Warning: $FS_CONFIG missing, skipping $PARTITION"
+            return
+        }
+
+        [[ -f "$FILE_CONTEXTS" ]] || {
+            echo -e "Warning: $FILE_CONTEXTS missing, skipping $PARTITION"
+            return
+        }
 
         sort -u "$FILE_CONTEXTS" -o "$FILE_CONTEXTS"
         sort -u "$FS_CONFIG" -o "$FS_CONFIG"
 
         if [[ "$FILE_SYSTEM" == "erofs" ]]; then
-            echo -e "${YELLOW}Building EROFS image:${NC} $OUT_IMG"
-            $(pwd)/bin/erofs-utils/mkfs.erofs --mount-point="$MOUNT_POINT" --fs-config-file="$FS_CONFIG" --file-contexts="$FILE_CONTEXTS" -z lz4hc -b 4096 -T 1199145600 "$OUT_IMG" "$SRC_DIR" >/dev/null 2>&1
+            echo " "
+            echo -e "Building erofs image: $OUT_IMG"
+
+            $mkfs_erofs \
+                --mount-point="$MOUNT_POINT" \
+                --fs-config-file="$FS_CONFIG" \
+                --file-contexts="$FILE_CONTEXTS" \
+                -z lz4hc \
+                -b 4096 \
+                -T 1199145600 \
+                "$OUT_IMG" "$SOURCE_DIR" >/dev/null 2>&1
 
         elif [[ "$FILE_SYSTEM" == "ext4" ]]; then
-            echo -e "${YELLOW}Building ext4 image:${NC} $OUT_IMG"
-            $(pwd)/bin/ext4/make_ext4fs -l "$(awk "BEGIN {printf \"%.0f\", $SIZE * 1.1}")" -J -b 4096 -S "$FILE_CONTEXTS" -C "$FS_CONFIG"  -a "$MOUNT_POINT" -L "$PARTITION" "$OUT_IMG" "$SRC_DIR"
-			# Resize img to reduce size.
-			resize2fs -M "$OUT_IMG"
+            echo " "
+            echo -e "Building ext4 image: $OUT_IMG"
+
+            SIZE=$(((EXTRACTED_SIZE + 4095) / 4096 * 4096))
+            EXTENDED_SIZE=$((SIZE + SIZE / 5))
+
+            if [ "$EXTENDED_SIZE" -lt "4349952" ]; then
+                EXTENDED_SIZE="4349952"
+            fi
+
+            $make_ext4fs \
+                -l "$EXTENDED_SIZE" \
+                -J \
+                -b 4096 \
+                -S "$FILE_CONTEXTS" \
+                -C "$FS_CONFIG" \
+                -a "$MOUNT_POINT" \
+                -L "$PARTITION" \
+                "$OUT_IMG" "$SOURCE_DIR"
+
+            resize2fs -M "$OUT_IMG"
+
+        elif [[ "$FILE_SYSTEM" == "f2fs" ]]; then
+            echo " "
+            echo -e "Building f2fs image: $OUT_IMG"
+
+            SIZE=$(((EXTRACTED_SIZE + 511) / 512 * 512))
+            EXTENDED_SIZE=$((SIZE + SIZE / 4))
+
+            dd if=/dev/zero of="$OUT_IMG" bs=512 count=$((EXTENDED_SIZE / 512))
+
+            $make_f2fs \
+                -f -q \
+                -g android \
+                -O extra_attr,inode_checksum,sb_checksum,compression \
+                -l "$MOUNT_POINT" \
+                "$OUT_IMG"
+
+            $sload_f2fs \
+                -f "$SOURCE_DIR" \
+                -C "$FS_CONFIG" \
+                -s "$FILE_CONTEXTS" \
+                -t "$MOUNT_POINT" \
+                -P \
+                -c \
+                -L 2 \
+                -a lz4 \
+                "$OUT_IMG"
+
+            img2simg "$OUT_IMG" "${OUT_IMG}.sparse"
+
+            rm -rf "$OUT_IMG"
+            mv "${OUT_IMG}.sparse" "$OUT_IMG"
+
         else
-            echo -e "Unknown filesystem: $FILE_SYSTEM, skipping $PARTITION"
-            continue
+            echo -e "Unsupported filesystem: $FILE_SYSTEM"
+            return
         fi
-    done
+    }
+
+    if [ "$MODE" = "all" ]; then
+
+        for PART in "$EXTRACTED_FIRM_DIR"/*; do
+            [[ -d "$PART" ]] || continue
+
+            local PARTITION="$(basename "$PART")"
+
+            [[ "$PARTITION" == "config" ]] && continue
+
+            build_img "$PARTITION"
+        done
+
+    else
+        build_img "$MODE"
+    fi
+
+    chown -R "$REAL_USER:$REAL_USER" "$OUT_DIR"
+    chmod -R u+rwX "$OUT_DIR"
 }
