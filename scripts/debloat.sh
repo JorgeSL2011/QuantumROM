@@ -16,6 +16,7 @@ DEBLOAT_APPS=(
 "VisionIntelligence3.7" "VoiceAccess" "VTCameraSetting"
 "WebManual" "WifiGuider" "AutomationTest_FB" "FactoryTestProvider"
 "StickerCenter" "CIDManager" "FacAtFunction" "serviceModeApp_FB"
+"GameTools_Dream" "GameHome" "GameOptimizingService"
 )
 
 
