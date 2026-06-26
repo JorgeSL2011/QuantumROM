@@ -1665,7 +1665,7 @@ FIX_BLUETOOTH() {
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
-    local BUILD_BRAND=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "Build.BRAND")
+    local BUILD_BRAND="Exynos"
 	local SDK=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.build.version.sdk_full")
     local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 
