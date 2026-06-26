@@ -1687,8 +1687,7 @@ FIX_CAMERA() {
     local BUILD_BRAND="Exynos"
     local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 
-    if [ "$STOCK_DEVICE_CHIPSET" = "MediaTek" ] && [ "$BUILD_BRAND" != "MTK" ]; then
-        echo "- Adding mediatek camera related files."
+	echo "- Adding mediatek camera related files."
 
         if [ -f "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
             if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
@@ -1719,7 +1718,6 @@ FIX_CAMERA() {
             echo "- Copying A34 mediatek camera related files."
             cp -rfa "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/." "${EXTRACTED_FIRM_DIR}/system/system"
         fi
-    fi
 }
 
 
