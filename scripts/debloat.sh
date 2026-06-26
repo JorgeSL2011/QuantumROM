@@ -16,7 +16,7 @@ DEBLOAT_APPS=(
 "VisionIntelligence3.7" "VoiceAccess" "VTCameraSetting"
 "WebManual" "WifiGuider" "AutomationTest_FB" "FactoryTestProvider"
 "StickerCenter" "CIDManager" "FacAtFunction" "serviceModeApp_FB"
-"GameTools_Dream" "GameHome" "GameOptimizingService"
+"GameTools_Dream" "GameHome" "GameOptimizingService" "SDMConfig"
 )
 
 
@@ -67,7 +67,7 @@ GOOGLE_APPS=(
 "YourPhone_Stub" "AndroidAutoStub" "FamilyLinkParentalControls"
 "AndroidSystemIntelligence" "GoogleRestore"
 "SamsungMessages" "SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
-"Gmail2" "Velvet" "Youtube"
+"Gmail2" "Velvet" "YouTtube"
 )
 
 
