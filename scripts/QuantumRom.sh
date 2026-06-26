@@ -1684,7 +1684,7 @@ FIX_CAMERA() {
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
-    local BUILD_BRAND=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "Build.BRAND")
+    local BUILD_BRAND="MTK"
     local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 
     if [ "$STOCK_DEVICE_CHIPSET" = "MediaTek" ] && [ "$BUILD_BRAND" != "MTK" ]; then
