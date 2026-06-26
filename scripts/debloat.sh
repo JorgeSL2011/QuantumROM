@@ -67,7 +67,7 @@ GOOGLE_APPS=(
 "YourPhone_Stub" "AndroidAutoStub" "FamilyLinkParentalControls"
 "AndroidSystemIntelligence" "GoogleRestore"
 "SamsungMessages" "SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
-"Gmail2" "Velvet" "YouTtube"
+"Gmail2" "Velvet" "YouTube"
 )
 
 
