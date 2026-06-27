@@ -2405,10 +2405,13 @@ BUILD_IMG() {
                 --mount-point="$MOUNT_POINT" \
                 --fs-config-file="$FS_CONFIG" \
                 --file-contexts="$FILE_CONTEXTS" \
-                -z lz4hc \
+                -z lz4hc,12 \
+                -E fragments \
+                -E force_inode_compact \
+                --all-fragments \
                 -b 4096 \
                 -T 1199145600 \
-                "$OUT_IMG" "$SOURCE_DIR" >/dev/null 2>&1
+                "$OUT_IMG" "$SOURCE_DIR" >/dev/null 2>&11
 
         elif [[ "$FILE_SYSTEM" == "ext4" ]]; then
             echo " "
