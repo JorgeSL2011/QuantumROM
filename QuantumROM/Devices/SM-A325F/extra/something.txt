@@ -1,1 +1,0 @@
-Only added this thing in here just in case, this should be in the .zip file where the system.img and product.img should be
