@@ -2407,7 +2407,6 @@ BUILD_IMG() {
                 --file-contexts="$FILE_CONTEXTS" \
                 -z lz4hc,12 \
                 -E fragments \
-                -E force_inode_compact \
                 --all-fragments \
                 -b 4096 \
                 -T 1199145600 \
