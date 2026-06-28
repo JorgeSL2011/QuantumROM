@@ -2406,7 +2406,6 @@ BUILD_IMG() {
                 --fs-config-file="$FS_CONFIG" \
                 --file-contexts="$FILE_CONTEXTS" \
                 -z lz4hc,12 \
-                -E fragments \
                 -b 4096 \
                 -T 1199145600 \
                 "$OUT_IMG" "$SOURCE_DIR"
