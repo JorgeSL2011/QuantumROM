@@ -2411,7 +2411,7 @@ BUILD_IMG() {
                 --all-fragments \
                 -b 4096 \
                 -T 1199145600 \
-                "$OUT_IMG" "$SOURCE_DIR" >/dev/null 2>&11
+                "$OUT_IMG" "$SOURCE_DIR" >/dev/null 2>&1
 
         elif [[ "$FILE_SYSTEM" == "ext4" ]]; then
             echo " "
