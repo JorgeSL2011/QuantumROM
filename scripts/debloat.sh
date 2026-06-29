@@ -45,7 +45,8 @@ SAMSUNG_APPS=(
 "AREmojiEditor" "AutoDoodle" "AvatarEmojiSticker"
 "AvatarEmojiSticker_S" "AvatarPicker"
 "GalleryWidget" "LiveStickers" "StoryService"
-"StickerFaceARAvatar" "sticker"
+"StickerFaceARAvatar" "sticker" "BudsUniteManager"
+"DailyBoard"
 )
 
 
@@ -67,7 +68,7 @@ GOOGLE_APPS=(
 "YourPhone_Stub" "AndroidAutoStub" "FamilyLinkParentalControls"
 "AndroidSystemIntelligence" "GoogleRestore"
 "SamsungMessages" "SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
-"Gmail2" "Velvet" "YouTube"
+"Gmail2" "Velvet" "YouTube" "Chrome" "TrichromeLibrary"
 )
 
 
